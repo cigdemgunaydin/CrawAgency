@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@1&family=Barlow:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: 'Instrument Serif', serif;
+  --font-body: 'Barlow', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #000000;
+  overscroll-behavior: none;
+}
+
+body {
+  @apply bg-cream-100 text-text-primary font-body;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
