@@ -27,7 +27,7 @@ const features = [
 
 export default function VirtualTourShowcase() {
   return (
-    <section className="py-20 bg-cream-200">
+    <section className="py-20 md:py-28 bg-cream-200">
       <Container>
         <SectionHeading
           title="360° Sanal Tur"

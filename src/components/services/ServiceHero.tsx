@@ -13,7 +13,7 @@ export default function ServiceHero({ title, description }: ServiceHeroProps) {
         <nav className="flex items-center gap-2 text-sm text-text-tertiary mb-6">
           <Link href="/" className="hover:text-terracotta-400 transition-colors">Ana Sayfa</Link>
           <span>/</span>
-          <Link href="/hizmetler/meta-reklamlari" className="hover:text-terracotta-400 transition-colors">Hizmetler</Link>
+          <span>Hizmetler</span>
           <span>/</span>
           <span className="text-text-primary">{title}</span>
         </nav>

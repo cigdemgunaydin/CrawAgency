@@ -3,11 +3,11 @@ import Button from "@/components/ui/Button";
 
 export default function CTABanner() {
   return (
-    <section className="py-20 bg-gradient-to-br from-terracotta-400 to-terracotta-500">
+    <section className="py-20 md:py-28 bg-gradient-to-br from-terracotta-400 to-terracotta-500">
       <Container>
         <div className="text-center">
           <h2 className="font-heading text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
-            İşletmenizi Büyütmeye Hazır Mısınız?
+            Siz de Bu Sonuçlara Ulaşın
           </h2>
           <p className="mt-4 text-lg text-white/80 max-w-xl mx-auto">
             Ücretsiz danışmanlık görüşmesiyle dijital pazarlama stratejinizi birlikte planlayalım.

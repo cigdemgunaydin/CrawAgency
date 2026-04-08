@@ -1,29 +1,22 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { services } from "@/data/services";
 
 interface FormData {
   name: string;
-  email: string;
-  phone: string;
-  service: string;
+  contact: string;
   message: string;
 }
 
 interface FormErrors {
   name?: string;
-  email?: string;
-  phone?: string;
-  message?: string;
+  contact?: string;
 }
 
 export default function ContactForm() {
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    email: "",
-    phone: "",
-    service: "",
+    contact: "",
     message: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -32,15 +25,7 @@ export default function ContactForm() {
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     if (!formData.name.trim()) newErrors.name = "Ad Soyad gereklidir.";
-    if (!formData.email.trim()) {
-      newErrors.email = "E-posta gereklidir.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Geçerli bir e-posta adresi girin.";
-    }
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Telefon numarası gereklidir.";
-    }
-    if (!formData.message.trim()) newErrors.message = "Mesaj gereklidir.";
+    if (!formData.contact.trim()) newErrors.contact = "Telefon veya e-posta gereklidir.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,13 +39,19 @@ export default function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-card bg-sage-400/10 p-8 text-center">
-        <div className="text-4xl mb-4">✓</div>
-        <h3 className="font-body text-xl font-semibold text-text-primary">
-          Mesajınız Alındı!
-        </h3>
-        <p className="mt-2 text-text-secondary">
-          En kısa sürede sizinle iletişime geçeceğiz.
+      <div className="rounded-card bg-sage-400/10 p-8">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-sage-400/20">
+            <svg className="w-5 h-5 text-sage-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="font-body text-xl font-semibold text-text-primary">
+            Mesajınız Alındı!
+          </h3>
+        </div>
+        <p className="text-text-secondary">
+          24 saat içinde sizi arayacağız. Acil durumlar için WhatsApp&apos;tan ulaşabilirsiniz.
         </p>
       </div>
     );
@@ -77,81 +68,46 @@ export default function ContactForm() {
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
+          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
           placeholder="Adınız Soyadınız"
         />
         {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-1">
-          E-posta *
+        <label htmlFor="contact" className="block text-sm font-medium text-text-primary mb-1">
+          Telefon veya E-posta *
         </label>
         <input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
-          placeholder="ornek@email.com"
+          id="contact"
+          type="text"
+          value={formData.contact}
+          onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
+          placeholder="0532 123 45 67 veya ornek@email.com"
         />
-        {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-1">
-          Telefon *
-        </label>
-        <input
-          id="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
-          placeholder="0532 123 45 67"
-        />
-        {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="service" className="block text-sm font-medium text-text-primary mb-1">
-          İlgilendiğiniz Hizmet
-        </label>
-        <select
-          id="service"
-          value={formData.service}
-          onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-2.5 text-text-primary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
-        >
-          <option value="">Seçiniz</option>
-          {services.map((s) => (
-            <option key={s.slug} value={s.slug}>
-              {s.title}
-            </option>
-          ))}
-        </select>
+        {errors.contact && <p className="mt-1 text-sm text-red-500">{errors.contact}</p>}
       </div>
 
       <div>
         <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-1">
-          Mesajınız *
+          Ne hakkında konuşalım?
         </label>
         <textarea
           id="message"
-          rows={5}
+          rows={4}
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400 resize-none"
-          placeholder="Projeniz hakkında bize bilgi verin..."
+          className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400 resize-none"
+          placeholder="Projeniz veya ihtiyacınız hakkında kısaca bilgi verin... (opsiyonel)"
         />
-        {errors.message && <p className="mt-1 text-sm text-red-500">{errors.message}</p>}
       </div>
 
       <button
         type="submit"
         className="w-full rounded-full bg-terracotta-400 px-6 py-3 text-base font-medium text-white hover:bg-terracotta-500 transition-colors"
       >
-        Mesaj Gönder
+        Gönder
       </button>
     </form>
   );

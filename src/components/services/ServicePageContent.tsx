@@ -19,12 +19,18 @@ export default function ServicePageContent({ service, children }: ServicePageCon
       />
       <Container className="py-16">
         <div className="max-w-3xl mx-auto">
-          {/* What is this service */}
+          {/* Problem & Solution */}
           <section className="mb-16">
             <h2 className="font-body text-2xl font-bold text-text-primary mb-4 sm:text-3xl">
-              Bu hizmet nedir?
+              Ne Sorunu Çözer?
             </h2>
-            <p className="text-text-secondary leading-relaxed">
+            <p className="text-text-secondary leading-relaxed mb-4">
+              {service.problem}
+            </p>
+            <p className="font-body font-semibold text-terracotta-400 text-lg">
+              {service.resultStat}
+            </p>
+            <p className="text-text-secondary leading-relaxed mt-6">
               {service.longDescription}
             </p>
           </section>

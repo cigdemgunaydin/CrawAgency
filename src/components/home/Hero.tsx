@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 
 // ── AYARLAR ──────────────────────────────────────────────────
@@ -117,6 +118,217 @@ function VaporizeCanvas({ text, trigger, onComplete, fontSize, color }: Vaporize
   );
 }
 
+// ── SÜREÇ ADIMLARI ──────────────────────────────────────────
+const PROCESS_STEPS = [
+  {
+    title: "Keşif Görüşmesi",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Durum Analizi",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <circle cx="11" cy="11" r="8" />
+        <path d="M21 21l-4.35-4.35" />
+        <path d="M11 8v6M8 11h6" />
+      </svg>
+    ),
+  },
+  {
+    title: "Strateji",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
+        <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
+      </svg>
+    ),
+  },
+  {
+    title: "Tasarım & Geliştirme",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+        <line x1="14" y1="4" x2="10" y2="20" />
+      </svg>
+    ),
+  },
+  {
+    title: "Test & Lansman",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" />
+        <path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" />
+        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+      </svg>
+    ),
+  },
+  {
+    title: "Büyüme",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+        <polyline points="16 7 22 7 22 13" />
+      </svg>
+    ),
+  },
+];
+
+const STEP_CYCLE_DURATION = 3000;
+
+function ProcessAnimation() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % PROCESS_STEPS.length);
+    }, STEP_CYCLE_DURATION);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center">
+      {/* Merkez glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
+        style={{
+          background: "radial-gradient(circle, rgba(223,168,117,0.12) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Orbital halka */}
+      <div className="relative w-[420px] h-[420px] md:w-[500px] md:h-[500px] lg:w-[560px] lg:h-[560px]">
+        {/* Halka çizgisi */}
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 560 560">
+          <circle
+            cx="280" cy="280" r="240"
+            fill="none"
+            stroke="rgba(255,255,255,0.04)"
+            strokeWidth="1"
+          />
+          <motion.circle
+            cx="280" cy="280" r="240"
+            fill="none"
+            stroke="rgba(223,168,117,0.15)"
+            strokeWidth="2"
+            strokeDasharray={`${2 * Math.PI * 240}`}
+            strokeDashoffset={2 * Math.PI * 240}
+            strokeLinecap="round"
+            animate={{
+              strokeDashoffset: [
+                2 * Math.PI * 240,
+                2 * Math.PI * 240 * (1 - (activeStep + 1) / PROCESS_STEPS.length),
+              ],
+            }}
+            transition={{ duration: STEP_CYCLE_DURATION / 1000, ease: "easeInOut" }}
+            style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+          />
+        </svg>
+
+        {/* Adım kartları */}
+        {PROCESS_STEPS.map((step, i) => {
+          const angle = (i / PROCESS_STEPS.length) * 2 * Math.PI - Math.PI / 2;
+          const radius = 240;
+          const x = 280 + Math.cos(angle) * radius;
+          const y = 280 + Math.sin(angle) * radius;
+          const isActive = i === activeStep;
+          const isPast = i < activeStep;
+
+          return (
+            <motion.div
+              key={step.title}
+              className="absolute"
+              style={{
+                left: `${(x / 560) * 100}%`,
+                top: `${(y / 560) * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{
+                opacity: 1,
+                scale: isActive ? 1.1 : 1,
+              }}
+              transition={{
+                opacity: { duration: 0.6, delay: i * 0.15 },
+                scale: { duration: 0.4 },
+              }}
+            >
+              {/* Kart */}
+              <motion.div
+                className="flex items-center gap-3 px-4 py-3 rounded-xl whitespace-nowrap"
+                animate={{
+                  backgroundColor: isActive
+                    ? "rgba(223,168,117,0.12)"
+                    : isPast
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(255,255,255,0.03)",
+                  borderColor: isActive
+                    ? "rgba(223,168,117,0.3)"
+                    : "rgba(255,255,255,0.06)",
+                }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  border: "1px solid",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      style={{
+                        background: "radial-gradient(ellipse at center, rgba(223,168,117,0.1) 0%, transparent 70%)",
+                        filter: "blur(8px)",
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  className="relative flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+                  animate={{
+                    backgroundColor: isActive
+                      ? "rgba(223,168,117,0.2)"
+                      : "rgba(255,255,255,0.05)",
+                  }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <motion.div
+                    animate={{
+                      color: isActive ? "#dfa875" : isPast ? "rgba(223,168,117,0.6)" : "rgba(255,255,255,0.4)",
+                    }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    {step.icon}
+                  </motion.div>
+                </motion.div>
+
+                <motion.span
+                  className="text-sm font-medium relative"
+                  animate={{
+                    color: isActive ? "#dfa875" : isPast ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.35)",
+                  }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {step.title}
+                </motion.span>
+              </motion.div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── ANA HERO ─────────────────────────────────────────────────
 export default function Hero() {
   const [index, setIndex] = useState(0);
@@ -142,101 +354,110 @@ export default function Hero() {
   const accent = "#dfa875";
 
   return (
-    <section
-      className="relative w-full h-[1000px] flex flex-col items-center justify-center bg-black overflow-visible px-6"
-    >
-      {/* Video arka plan */}
-      <video autoPlay muted loop playsInline
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-          objectFit: "cover", zIndex: 0, opacity: 0.3 }}>
-        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4" type="video/mp4" />
-      </video>
+    <section className="relative w-full min-h-screen bg-black overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-screen flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
 
-      {/* Başlık */}
-      <h1
-        className="font-heading italic text-white text-6xl md:text-7xl lg:text-[5.5rem] leading-[0.8] tracking-[-4px] text-center relative z-[1]"
-        style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(20px)",
-          transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
-        }}
-      >
-        İşletmenizi Dijitalde Büyütüyoruz
-      </h1>
+        {/* Sol: Yazılar & CTA */}
+        <div className="flex flex-col items-start justify-center lg:w-1/2 relative z-[1] pt-24 lg:pt-0">
+          {/* Başlık */}
+          <h1
+            className="font-heading italic text-white leading-[0.9] tracking-[-0.02em]"
+            style={{
+              fontSize: "clamp(2.5rem, 6vw, 5rem)",
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(20px)",
+              transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
+            }}
+          >
+            İşletmenizi<br />Dijitalde<br />Öne Çıkarıyoruz
+          </h1>
 
-      {/* Vaporize dönen kelime */}
-      <div
-        style={{
-          position: "relative", width: "100%", maxWidth: 900,
-          height: fontSize * 1.6, display: "flex", alignItems: "center",
-          justifyContent: "center", margin: "12px auto", zIndex: 1,
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(20px)",
-          transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.15s",
-        }}
-      >
-        {/* Glow */}
-        <div style={{
-          position: "absolute", inset: "-20px -40px", borderRadius: "50%",
-          background: `radial-gradient(ellipse at center, rgba(223,168,117,0.18) 0%, transparent 70%)`,
-          pointerEvents: "none",
-        }} />
+          {/* Servis tagları */}
+          <p
+            className="font-body text-white/40 text-sm md:text-base tracking-wide mt-4"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(16px)",
+              transition: "all 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s",
+            }}
+          >
+            3D Sanal Tur &middot; Sosyal Medya &middot; Web Tasarım &middot; Google & Meta Reklamları
+          </p>
 
-        <span key={currentWord}
-          style={{
-            fontSize: `clamp(22px, 3.5vw, ${fontSize}px)`, fontWeight: 700,
-            fontFamily: "var(--font-body), sans-serif",
-            color: phase === "vaporizing" ? "transparent" : accent,
-            opacity: phase === "fading-in" ? 0 : 1,
-            transition: phase === "fading-in" ? `opacity ${FADE_IN_DURATION}ms ease-out`
-              : phase === "vaporizing" ? "color 0.15s ease-out" : "none",
-            animation: phase === "fading-in" ? `fadeWordIn ${FADE_IN_DURATION}ms ease-out forwards` : "none",
-            position: "relative", zIndex: 1,
-          }}>
-          {currentWord}
-        </span>
+          {/* Vaporize dönen kelime */}
+          <div
+            style={{
+              position: "relative", width: "100%", maxWidth: 500,
+              height: fontSize * 1.6, display: "flex", alignItems: "center",
+              justifyContent: "flex-start", margin: "16px 0", zIndex: 1,
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(20px)",
+              transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.15s",
+            }}
+          >
+            <div style={{
+              position: "absolute", inset: "-20px -40px", borderRadius: "50%",
+              background: `radial-gradient(ellipse at center, rgba(223,168,117,0.18) 0%, transparent 70%)`,
+              pointerEvents: "none",
+            }} />
 
-        <VaporizeCanvas text={currentWord} trigger={phase === "vaporizing"}
-          onComplete={handleVaporizeComplete} fontSize={fontSize} color={accent} />
-      </div>
+            <span key={currentWord}
+              style={{
+                fontSize: `clamp(22px, 3.5vw, ${fontSize}px)`, fontWeight: 700,
+                fontFamily: "var(--font-body), sans-serif",
+                color: phase === "vaporizing" ? "transparent" : accent,
+                opacity: phase === "fading-in" ? 0 : 1,
+                transition: phase === "fading-in" ? `opacity ${FADE_IN_DURATION}ms ease-out`
+                  : phase === "vaporizing" ? "color 0.15s ease-out" : "none",
+                animation: phase === "fading-in" ? `fadeWordIn ${FADE_IN_DURATION}ms ease-out forwards` : "none",
+                position: "relative", zIndex: 1,
+              }}>
+              {currentWord}
+            </span>
 
-      {/* Açıklama */}
-      <p
-        className="font-body font-light text-white/60 text-lg md:text-xl max-w-[600px] mx-auto text-center relative z-[1] mt-8"
-        style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(16px)",
-          transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.3s",
-        }}
-      >
-        Stratejik dijital pazarlama ve yaratıcı çözümlerle
-        işletmenizi bir sonraki seviyeye taşıyoruz.
-      </p>
+            <VaporizeCanvas text={currentWord} trigger={phase === "vaporizing"}
+              onComplete={handleVaporizeComplete} fontSize={fontSize} color={accent} />
+          </div>
 
-      {/* CTA */}
-      <div
-        className="flex gap-4 mt-10 flex-wrap justify-center relative z-[1]"
-        style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? "translateY(0)" : "translateY(16px)",
-          transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.45s",
-        }}
-      >
-        <Button href="/iletisim" size="lg" className="font-body font-medium">
-          Ücretsiz Danışmanlık Alın
-          <svg className="ml-2 w-4 h-4 -mt-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 15L15 1M15 1H5M15 1V11" />
-          </svg>
-        </Button>
-        <button
-          onClick={() => window.location.href = "/referanslar"}
-          className="font-body text-white/60 hover:text-white transition-colors inline-flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-          </svg>
-          Referanslarımız
-        </button>
+          {/* Açıklama */}
+          <p
+            className="font-body font-light text-white/60 text-lg md:text-xl max-w-[480px] mt-6"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(16px)",
+              transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.3s",
+            }}
+          >
+            Stratejik dijital pazarlama ve yaratıcı çözümlerle
+            işletmenizi bir sonraki seviyeye taşıyoruz.
+          </p>
+
+          {/* CTA */}
+          <div
+            className="flex flex-col gap-3 mt-10"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(16px)",
+              transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.45s",
+            }}
+          >
+            <Button href="/iletisim" size="lg" className="font-body font-medium">
+              Ücretsiz Danışmanlık Alın
+              <svg className="ml-2 w-4 h-4 -mt-0.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 15L15 1M15 1H5M15 1V11" />
+              </svg>
+            </Button>
+            <span className="font-body text-white/40 text-sm italic">
+              İzmir&apos;de 12+ işletme ile çalışıyoruz
+            </span>
+          </div>
+        </div>
+
+        {/* Sağ: Süreç animasyonu */}
+        <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative z-[1]">
+          <ProcessAnimation />
+        </div>
+
       </div>
 
       <style>{`

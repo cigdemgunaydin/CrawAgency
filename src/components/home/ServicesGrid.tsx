@@ -5,7 +5,7 @@ import { services } from "@/data/services";
 
 export default function ServicesGrid() {
   return (
-    <section className="py-20">
+    <section className="py-20 md:py-28">
       <Container>
         <SectionHeading
           title="Hizmetlerimiz"

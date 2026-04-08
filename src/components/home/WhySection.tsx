@@ -22,7 +22,7 @@ const reasons = [
 
 export default function WhySection() {
   return (
-    <section className="py-20 bg-cream-200">
+    <section className="py-20 md:py-28 bg-cream-200">
       <Container>
         <SectionHeading
           title="Neden CrawAgency?"

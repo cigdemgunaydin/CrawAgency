@@ -8,12 +8,15 @@ interface ServiceCardProps {
 
 export default function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Card>
-      <h3 className="font-body text-xl font-semibold text-text-primary mb-2">
+    <Card hover>
+      <h3 className="font-body text-lg font-semibold text-text-primary mb-2">
         {service.title}
       </h3>
-      <p className="text-text-secondary text-sm leading-relaxed mb-4">
-        {service.description}
+      <p className="text-text-tertiary text-sm leading-relaxed mb-3">
+        {service.problem}
+      </p>
+      <p className="font-body font-semibold text-terracotta-400 text-sm mb-4">
+        {service.resultStat}
       </p>
       <Link
         href={`/hizmetler/${service.slug}`}

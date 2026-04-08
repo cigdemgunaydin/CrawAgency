@@ -28,7 +28,7 @@ export default function MobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 top-[72px] z-50 bg-cream-100">
+        <div className="fixed inset-0 top-[88px] z-50 bg-cream-100">
           <nav className="flex flex-col p-6 space-y-1">
             {navItems.map((item) => (
               <div key={item.label}>

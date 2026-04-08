@@ -7,6 +7,8 @@ export const services: Service[] = [
     shortTitle: "Meta Ads",
     description:
       "Facebook ve Instagram reklamlarıyla hedef kitlenize ulaşın, müşteri sayınızı artırın.",
+    problem: "Reklam bütçeniz etkisiz harcanıyor ve doğru müşterilere ulaşamıyorsunuz.",
+    resultStat: "Müşterilerimizde ortalama %43 rezervasyon artışı",
     longDescription:
       "Meta platformları (Facebook ve Instagram) üzerinden stratejik reklam kampanyaları oluşturarak yerel işletmenizin doğru hedef kitleye ulaşmasını sağlıyoruz. Demografik ve davranışsal hedefleme ile bütçenizden maksimum verim alırsınız.",
     features: [
@@ -73,6 +75,8 @@ export const services: Service[] = [
     shortTitle: "Google Ads",
     description:
       "Google'da arama yapan potansiyel müşterilerinize ilk sırada görünün.",
+    problem: "Potansiyel müşteriler sizi Google'da aradığında rakiplerinizi buluyor.",
+    resultStat: "%67 arama görünürlüğü artışı",
     longDescription:
       "Google Ads ile potansiyel müşterileriniz tam ihtiyaç duydukları anda karşılarına çıkın. Arama, görüntülü reklam ve yerel kampanyalarla işletmenizin online görünürlüğünü maksimuma çıkarıyoruz.",
     features: [
@@ -139,6 +143,8 @@ export const services: Service[] = [
     shortTitle: "SEO",
     description:
       "Organik arama sonuçlarında üst sıralara çıkarak sürdürülebilir trafik kazanın.",
+    problem: "Reklam harcaması durduğunda trafiğiniz de sıfırlanıyor.",
+    resultStat: "Reklam harcaması olmadan sürekli organik trafik",
     longDescription:
       "Arama motoru optimizasyonu ile web sitenizin Google'da üst sıralarda yer almasını sağlıyoruz. Teknik SEO, içerik optimizasyonu ve bağlantı stratejileriyle kalıcı organik trafik elde edin.",
     features: [
@@ -205,6 +211,8 @@ export const services: Service[] = [
     shortTitle: "Web Tasarım",
     description:
       "Modern, hızlı ve dönüşüm odaklı web siteleri tasarlıyoruz.",
+    problem: "Web siteniz ziyaretçileri müşteriye dönüştürmüyor, eski görünüyor.",
+    resultStat: "Profesyonel site ile 3x daha fazla talep formu",
     longDescription:
       "İşletmenizin dijital vitrini olan web sitenizi modern teknolojilerle, mobil uyumlu ve kullanıcı dostu olarak tasarlıyoruz. SEO uyumlu altyapı ile hem güzel görünen hem de sonuç üreten siteler oluşturuyoruz.",
     features: [
@@ -271,6 +279,8 @@ export const services: Service[] = [
     shortTitle: "Sosyal Medya",
     description:
       "Sosyal medya hesaplarınızı profesyonelce yöneterek markanızı büyütüyoruz.",
+    problem: "Sosyal medya hesaplarınız düzensiz, etkileşim neredeyse sıfır.",
+    resultStat: "Aylık 340K+ erişim ve organik takipçi büyümesi",
     longDescription:
       "Instagram, Facebook ve diğer sosyal medya platformlarında markanızı temsil eden içerikler üretiyor, topluluk yönetimi yapıyor ve takipçi kitlenizi organik olarak büyütüyoruz.",
     features: [
@@ -337,6 +347,8 @@ export const services: Service[] = [
     shortTitle: "Sanal Tur",
     description:
       "İşletmenizi 360° sanal turla online'da tanıtarak müşteri güvenini artırın.",
+    problem: "Müşteriler mekanınızı görmeden karar veremiyor, güven eksikliği yaşıyor.",
+    resultStat: "Misafirler odayı önceden gezsin — dönüşüm %35 artar",
     longDescription:
       "Profesyonel 360° sanal tur çekimleriyle müşterilerinizin işletmenizi kapınızdan girmeden keşfetmesini sağlıyoruz. Google Haritalar entegrasyonuyla görünürlüğünüzü katbekat artırın.",
     features: [

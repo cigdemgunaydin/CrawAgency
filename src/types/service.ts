@@ -10,6 +10,8 @@ export interface Service {
   description: string;
   longDescription: string;
   icon?: string;
+  problem: string;
+  resultStat: string;
   features: ServiceFeature[];
   benefits: string[];
   targetAudience: string[];
