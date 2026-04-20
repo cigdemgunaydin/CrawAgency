@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 
 export default function PricingTabs() {
   const [activeTab, setActiveTab] = useState(pricingCategories[0].id);
-  const activeCategory = pricingCategories.find((c) => c.id === activeTab)!;
+  const activeCategory =
+    pricingCategories.find((c) => c.id === activeTab) ?? pricingCategories[0];
 
   return (
     <>

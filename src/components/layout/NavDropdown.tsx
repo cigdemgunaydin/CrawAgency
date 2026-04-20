@@ -29,6 +29,9 @@ export default function NavDropdown({ label, items }: NavDropdownProps) {
       onMouseLeave={handleMouseLeave}
     >
       <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
         className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors font-medium text-[13px] tracking-wide"
       >
         {label}

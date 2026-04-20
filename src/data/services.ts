@@ -1,4 +1,4 @@
-import { Service } from "@/types/service";
+import { Service, ServiceSlug } from "@/types/service";
 
 export const services: Service[] = [
   {
@@ -411,6 +411,6 @@ export const services: Service[] = [
   },
 ];
 
-export function getServiceBySlug(slug: string): Service | undefined {
+export function getServiceBySlug(slug: ServiceSlug): Service | undefined {
   return services.find((s) => s.slug === slug);
 }

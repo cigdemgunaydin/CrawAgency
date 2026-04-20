@@ -17,8 +17,9 @@ export default function MarqueeStrip() {
       <div className="flex animate-marquee whitespace-nowrap">
         {duplicated.map((item, i) => (
           <span
-            key={i}
+            key={`${item}-${i}`}
             className="mx-8 text-sm font-medium uppercase tracking-widest text-text-tertiary"
+            aria-hidden={i >= items.length}
           >
             {item}
           </span>

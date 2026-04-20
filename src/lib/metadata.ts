@@ -10,10 +10,9 @@ interface PageMetaOptions {
 export function generatePageMetadata({
   title,
   description,
-  path = "",
+  path = "/",
 }: PageMetaOptions): Metadata {
   const fullTitle = `${title} | ${COMPANY.name}`;
-  const url = `${COMPANY.website}${path}`;
 
   return {
     title: fullTitle,
@@ -21,7 +20,7 @@ export function generatePageMetadata({
     openGraph: {
       title: fullTitle,
       description,
-      url,
+      url: path,
       siteName: COMPANY.name,
       locale: "tr_TR",
       type: "website",
@@ -32,7 +31,7 @@ export function generatePageMetadata({
       description,
     },
     alternates: {
-      canonical: url,
+      canonical: path,
     },
   };
 }

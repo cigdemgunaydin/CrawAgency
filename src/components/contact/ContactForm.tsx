@@ -30,6 +30,8 @@ export default function ContactForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // TODO: Form şu anda hiçbir yere submit etmiyor; yalnızca local state'te başarılı gösterilir.
+  // İleride bir backend/service entegrasyonu eklenmeli (ör. WhatsApp redirect, FormSubmit.co, Web3Forms veya e-posta API'si).
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (validate()) {
@@ -67,7 +69,7 @@ export default function ContactForm() {
           id="name"
           type="text"
           value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
           className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
           placeholder="Adınız Soyadınız"
         />
@@ -82,7 +84,7 @@ export default function ContactForm() {
           id="contact"
           type="text"
           value={formData.contact}
-          onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+          onChange={(e) => setFormData((prev) => ({ ...prev, contact: e.target.value }))}
           className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400"
           placeholder="0532 123 45 67 veya ornek@email.com"
         />
@@ -97,7 +99,7 @@ export default function ContactForm() {
           id="message"
           rows={4}
           value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
           className="w-full rounded-lg border border-cream-300 bg-white px-4 py-3 text-text-primary placeholder:text-text-tertiary focus:border-terracotta-400 focus:outline-none focus:ring-1 focus:ring-terracotta-400 resize-none"
           placeholder="Projeniz veya ihtiyacınız hakkında kısaca bilgi verin... (opsiyonel)"
         />

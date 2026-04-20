@@ -1,20 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { navItems } from "@/data/navigation";
 import Button from "@/components/ui/Button";
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+    setExpandedItem(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   return (
     <div className="lg:hidden">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
         className="p-2 text-text-primary"
-        aria-label="Menüyü aç"
+        aria-label={isOpen ? "Menüyü kapat" : "Menüyü aç"}
+        aria-expanded={isOpen}
+        aria-controls="mobile-menu"
       >
         {isOpen ? (
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,17 +52,25 @@ export default function MobileMenu() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 top-[88px] z-50 bg-cream-100">
+        <div
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Ana menü"
+          className="fixed inset-0 top-[88px] z-50 bg-cream-100 overflow-y-auto"
+        >
           <nav className="flex flex-col p-6 space-y-1">
             {navItems.map((item) => (
               <div key={item.label}>
                 {item.dropdown ? (
                   <>
                     <button
+                      type="button"
                       onClick={() =>
                         setExpandedItem(expandedItem === item.label ? null : item.label)
                       }
                       className="flex items-center justify-between w-full py-3 text-lg font-medium text-text-primary"
+                      aria-expanded={expandedItem === item.label}
                     >
                       {item.label}
                       <svg
@@ -58,7 +90,6 @@ export default function MobileMenu() {
                           <Link
                             key={sub.href}
                             href={sub.href}
-                            onClick={() => setIsOpen(false)}
                             className="flex items-center gap-3 py-2 text-text-secondary hover:text-text-primary"
                           >
                             <span>{sub.label}</span>
@@ -70,7 +101,6 @@ export default function MobileMenu() {
                 ) : (
                   <Link
                     href={item.href}
-                    onClick={() => setIsOpen(false)}
                     className="block py-3 text-lg font-medium text-text-primary"
                   >
                     {item.label}

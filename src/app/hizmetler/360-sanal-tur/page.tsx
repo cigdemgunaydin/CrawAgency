@@ -1,15 +1,18 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { generatePageMetadata } from "@/lib/metadata";
 import { getServiceBySlug } from "@/data/services";
 import ServicePageContent from "@/components/services/ServicePageContent";
 
-const service = getServiceBySlug("360-sanal-tur")!;
+const service = getServiceBySlug("360-sanal-tur");
 
-export const metadata: Metadata = generatePageMetadata({
-  title: service.metaTitle,
-  description: service.metaDescription,
-  path: "/hizmetler/360-sanal-tur",
-});
+export const metadata: Metadata = service
+  ? generatePageMetadata({
+      title: service.metaTitle,
+      description: service.metaDescription,
+      path: "/hizmetler/360-sanal-tur",
+    })
+  : {};
 
 const faqs = [
   {
@@ -45,6 +48,7 @@ const faqs = [
 ];
 
 export default function SanalTurPage() {
+  if (!service) notFound();
   return (
     <ServicePageContent service={service}>
       <section className="mt-16 mb-8">

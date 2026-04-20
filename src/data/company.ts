@@ -5,7 +5,7 @@ export const companyStory = {
 İlk günden bu yana misyonumuz aynı: Yerel işletmelerin dijitalde büyümesine yardımcı olmak. Her müşterimize büyük bir markaya verilen özeni gösteriyoruz çünkü her yerel işletmenin başarısı, bulunduğu mahalleyi, sokağı ve şehri güçlendirir.
 
 Bugün 50'den fazla mutlu müşteriyle çalışıyor, her gün yeni başarı hikayeleri yazıyoruz.`,
-};
+} as const;
 
 export const companyValues = [
   {
@@ -26,7 +26,7 @@ export const companyValues = [
       "Başarımızı müşterilerimizin başarısıyla ölçüyoruz. Onlar büyüdükçe biz de büyüyoruz. Bu yüzden her müşterimize iş ortağı gibi yaklaşıyoruz.",
     icon: "🤝",
   },
-];
+] as const;
 
 export const companyTimeline = [
   {
@@ -53,4 +53,4 @@ export const companyTimeline = [
     description:
       "Hizmet kapsamımızı genişleterek yapay zeka destekli pazarlama çözümleri sunmaya başladık.",
   },
-];
+] as const;

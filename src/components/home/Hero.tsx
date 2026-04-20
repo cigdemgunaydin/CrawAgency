@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { COMPANY } from "@/lib/constants";
@@ -121,76 +121,283 @@ function VaporizeCanvas({ text, trigger, onComplete, fontSize, color }: Vaporize
   );
 }
 
-// ── SHOWCASE CARDS ──────────────────────────────────────────
-function ShowcaseCards() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rx = useSpring(useTransform(mouseY, [-200, 200], [5, -5]), { stiffness: 120, damping: 20 });
-  const ry = useSpring(useTransform(mouseX, [-250, 250], [-5, 5]), { stiffness: 120, damping: 20 });
+// ── SHOWCASE STACK (picker-style — horizontal cards, only active grows) ──
+type ShowcaseItem = {
+  id: string;
+  title: string;
+  media?: { type: "image" | "video"; src: string };
+  gradient: [string, string];
+};
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    mouseX.set(e.clientX - rect.left - rect.width / 2);
-    mouseY.set(e.clientY - rect.top - rect.height / 2);
+const PLACEHOLDER_IMG = "/andrew-ly-KZ0SZ2fEd20-unsplash.jpg";
+
+const SHOWCASE_ITEMS: ShowcaseItem[] = [
+  {
+    id: "alacati",
+    title: "Alaçatı Boutique Hotel",
+    media: { type: "image", src: PLACEHOLDER_IMG },
+    gradient: ["#6b4a35", "#1f1510"],
+  },
+  {
+    id: "cesme",
+    title: "Çeşme Marina Hotel",
+    media: { type: "image", src: PLACEHOLDER_IMG },
+    gradient: ["#2b4a5c", "#0f1c25"],
+  },
+  {
+    id: "urla",
+    title: "Urla Bağ Evi",
+    media: { type: "image", src: PLACEHOLDER_IMG },
+    gradient: ["#4a5c38", "#161f10"],
+  },
+  {
+    id: "foca",
+    title: "Foça Sahil Kafe",
+    media: { type: "image", src: PLACEHOLDER_IMG },
+    gradient: ["#5c4a3c", "#201811"],
+  },
+  {
+    id: "drone",
+    title: "Drone Çekimi",
+    media: { type: "image", src: PLACEHOLDER_IMG },
+    gradient: ["#3c2b3c", "#141014"],
+  },
+];
+
+// Slot → transform lookup. Keys: -2, -1, 0 (active), 1, 2. Others hidden.
+// `z` pushes the active card forward in 3D space so it always sits on top of neighbours.
+const SLOT_POSE: Record<number, { y: number; scale: number; opacity: number; rotateX: number; z: number }> = {
+  "-2": { y: -225, scale: 0.5,  opacity: 0.3,  rotateX: 30,  z: -160 },
+  "-1": { y: -130, scale: 0.72, opacity: 0.7,  rotateX: 16,  z: -80 },
+  "0":  { y: 0,    scale: 1,    opacity: 1,    rotateX: 0,   z: 80 },
+  "1":  { y: 130,  scale: 0.72, opacity: 0.7,  rotateX: -16, z: -80 },
+  "2":  { y: 225,  scale: 0.5,  opacity: 0.3,  rotateX: -30, z: -160 },
+};
+
+function ShowcaseStack() {
+  const [index, setIndex] = useState(0);
+  const [hovering, setHovering] = useState(false);
+  const wheelLockRef = useRef(false);
+  const wheelTimeoutRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  const N = SHOWCASE_ITEMS.length;
+
+  const go = useCallback((dir: 1 | -1) => {
+    setIndex((i) => (i + dir + N) % N);
+  }, [N]);
+
+  // Wheel: one flick = one card, throttled
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (wheelLockRef.current) return;
+    if (Math.abs(e.deltaY) < 12) return;
+    wheelLockRef.current = true;
+    go(e.deltaY > 0 ? 1 : -1);
+    if (wheelTimeoutRef.current) window.clearTimeout(wheelTimeoutRef.current);
+    wheelTimeoutRef.current = window.setTimeout(() => {
+      wheelLockRef.current = false;
+      wheelTimeoutRef.current = null;
+    }, 520);
+  }, [go]);
+
+  useEffect(() => {
+    return () => {
+      if (wheelTimeoutRef.current) window.clearTimeout(wheelTimeoutRef.current);
+    };
+  }, []);
+
+  // Keep the page from scrolling while the pointer is over the stack
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const stopScroll = (e: WheelEvent) => { if (hovering) e.preventDefault(); };
+    el.addEventListener("wheel", stopScroll, { passive: false });
+    return () => el.removeEventListener("wheel", stopScroll);
+  }, [hovering]);
+
+  // Touch swipe
+  const touchStartY = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current == null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dy) > 36) go(dy < 0 ? 1 : -1);
+    touchStartY.current = null;
   };
-  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
+
+  // Auto-cycle while idle
+  useEffect(() => {
+    if (hovering) return;
+    const t = window.setInterval(() => {
+      setIndex((i) => (i + 1) % N);
+    }, 4500);
+    return () => window.clearInterval(t);
+  }, [hovering, N]);
+
+  const half = Math.floor(N / 2);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full max-w-[500px] mx-auto h-[280px] sm:h-[340px] lg:h-[420px]"
-      style={{ perspective: 900 }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className="relative w-full max-w-[480px] mx-auto h-[500px] sm:h-[540px] lg:h-[580px] select-none"
+      style={{ perspective: 1400 }}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* Kart 1 — sol üst, dikdörtgen, hafif sola yatık */}
-      <motion.div
-        className="absolute left-[4%] lg:left-0 top-0 w-[48%] lg:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border border-white/[0.08]"
-        style={{ rotateX: rx, rotateY: ry, rotate: -2, transformStyle: "preserve-3d" }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        drag="x"
-        dragConstraints={{ left: -20, right: 20 }}
-        dragElastic={0.12}
-      >
-        <Image src="/hero/1.jpg" alt="Butik otel dış görünüm" fill className="object-cover" sizes="(min-width:1024px) 220px, 48vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-      </motion.div>
+      {/* ambient glow behind the active card */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 65% 45% at 50% 50%, rgba(223,168,117,0.22) 0%, transparent 70%)",
+        }}
+      />
 
-      {/* Kart 2 — sağ üst, video, hafif sağa yatık */}
-      <motion.div
-        className="absolute right-[4%] lg:right-0 top-[12%] lg:top-[8%] w-[46%] lg:w-[210px] aspect-[3/2] rounded-2xl overflow-hidden border border-white/[0.08]"
-        style={{ rotateX: rx, rotateY: ry, rotate: 1.5, transformStyle: "preserve-3d" }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        drag="x"
-        dragConstraints={{ left: -20, right: 20 }}
-        dragElastic={0.12}
-      >
-        <video className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline preload="none">
-          <source src="/hero/video.mp4" type="video/mp4" />
+      {/* cards */}
+      <div className="relative w-full h-full" style={{ transformStyle: "preserve-3d" }}>
+        {SHOWCASE_ITEMS.map((item, i) => {
+          // Signed slot: 0 = active, negative = above, positive = below
+          let slot = i - index;
+          if (slot > half) slot -= N;
+          if (slot < -half) slot += N;
+
+          const abs = Math.abs(slot);
+          const isActive = slot === 0;
+          const pose = SLOT_POSE[slot] ?? {
+            y: slot > 0 ? 340 : -340,
+            scale: 0.3,
+            opacity: 0,
+            rotateX: slot > 0 ? -42 : 42,
+            z: -300,
+          };
+
+          return (
+            <motion.div
+              key={item.id}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                zIndex: 10 - abs,
+                pointerEvents: isActive ? "auto" : "none",
+                transformStyle: "preserve-3d",
+              }}
+              animate={pose}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 170, damping: 24, mass: 0.8 }
+              }
+            >
+              <ShowcaseCard item={item} active={isActive} />
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* right rail: arrows + dots */}
+      <div className="absolute -right-2 sm:-right-3 lg:-right-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 z-30">
+        <button
+          aria-label="Önceki iş"
+          onClick={() => go(-1)}
+          className="w-7 h-7 rounded-full bg-white/5 border border-white/10 text-white/55 hover:text-white hover:bg-white/10 flex items-center justify-center transition"
+        >
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <path d="M3 7.5L6 4.5L9 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <div className="flex flex-col items-center gap-1.5 py-1">
+          {SHOWCASE_ITEMS.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-label={`${i + 1}. iş`}
+              aria-current={i === index ? "true" : undefined}
+              onClick={() => setIndex(i)}
+              className={
+                i === index
+                  ? "w-1 h-5 rounded-full bg-terracotta-400"
+                  : "w-1 h-1.5 rounded-full bg-white/25 hover:bg-white/45 transition-colors"
+              }
+            />
+          ))}
+        </div>
+        <button
+          aria-label="Sonraki iş"
+          onClick={() => go(1)}
+          className="w-7 h-7 rounded-full bg-white/5 border border-white/10 text-white/55 hover:text-white hover:bg-white/10 flex items-center justify-center transition"
+        >
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  );
+}
+
+function ShowcaseCard({ item, active }: { item: ShowcaseItem; active: boolean }) {
+  return (
+    <div
+      className="relative w-[88%] max-w-[400px] aspect-[16/9] rounded-2xl overflow-hidden border border-white/[0.09] shadow-[0_25px_55px_-20px_rgba(0,0,0,0.85)]"
+      style={{ backgroundColor: item.gradient[1] }}
+    >
+      {/* gradient fallback (always underneath the media) */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(145deg, ${item.gradient[0]} 0%, ${item.gradient[1]} 100%)`,
+        }}
+      />
+
+      {/* media */}
+      {item.media?.type === "image" && (
+        <Image
+          src={item.media.src}
+          alt={item.title}
+          fill
+          sizes="(min-width: 1024px) 400px, 80vw"
+          className="object-cover"
+          priority={active}
+        />
+      )}
+      {item.media?.type === "video" && (
+        <video
+          key={item.media.src}
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay={active}
+          muted
+          loop
+          playsInline
+          preload={active ? "auto" : "none"}
+        >
+          <source src={item.media.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-      </motion.div>
+      )}
 
-      {/* Kart 3 — orta alt, geniş dikdörtgen, hafif sola yatık */}
-      <motion.div
-        className="absolute left-[14%] sm:left-[18%] lg:left-[12%] bottom-0 w-[58%] lg:w-[250px] aspect-[16/9] rounded-2xl overflow-hidden border border-white/[0.08]"
-        style={{ rotateX: rx, rotateY: ry, rotate: -1, transformStyle: "preserve-3d" }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-        drag="x"
-        dragConstraints={{ left: -20, right: 20 }}
-        dragElastic={0.12}
-      >
-        <Image src="/hero/2.jpg" alt="Otel iç mekan" fill className="object-cover" sizes="(min-width:1024px) 250px, 58vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-      </motion.div>
+      {/* decorative pattern for media-less cards */}
+      {!item.media && (
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.14]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(135deg, rgba(255,255,255,0.14) 0 1px, transparent 1px 14px)",
+          }}
+        />
+      )}
+
+      {/* title — top overlay */}
+      <div className="absolute inset-x-0 top-0 px-4 py-3 bg-gradient-to-b from-black/75 via-black/35 to-transparent">
+        <h3 className="font-heading italic text-white text-base sm:text-lg leading-tight tracking-[-0.01em] truncate">
+          {item.title}
+        </h3>
+      </div>
     </div>
   );
 }
@@ -209,10 +416,15 @@ export default function Hero() {
     return () => clearTimeout(t);
   }, [phase, index]);
 
+  useEffect(() => {
+    if (phase !== "fading-in") return;
+    const t = setTimeout(() => setPhase("visible"), FADE_IN_DURATION);
+    return () => clearTimeout(t);
+  }, [phase]);
+
   const handleVaporizeComplete = useCallback(() => {
     setIndex((i) => (i + 1) % WORDS.length);
     setPhase("fading-in");
-    setTimeout(() => setPhase("visible"), FADE_IN_DURATION);
   }, []);
 
   const currentWord = WORDS[index];
@@ -284,6 +496,8 @@ export default function Hero() {
             }} />
 
             <span key={currentWord}
+              aria-live="polite"
+              aria-atomic="true"
               style={{
                 fontSize: `clamp(22px, 3.5vw, ${fontSize}px)`, fontWeight: 700,
                 fontFamily: "var(--font-body), sans-serif",
@@ -398,9 +612,9 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Sag: Showcase Cards */}
+        {/* Sag: One Cikan Isler Stack */}
         <div className="w-full lg:w-1/2 relative z-[1] mt-10 lg:mt-0 pb-8 lg:pb-0">
-          <ShowcaseCards />
+          <ShowcaseStack />
         </div>
 
       </div>

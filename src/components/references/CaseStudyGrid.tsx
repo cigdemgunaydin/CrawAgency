@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { caseStudies, caseStudyCategories } from "@/data/caseStudies";
 import FilterTabs from "./FilterTabs";
 import CaseStudyCard from "./CaseStudyCard";
 
 export default function CaseStudyGrid() {
   const [activeFilter, setActiveFilter] = useState("all");
+  const prefersReducedMotion = useReducedMotion();
 
   const filtered =
     activeFilter === "all"
@@ -26,11 +27,11 @@ export default function CaseStudyGrid() {
           {filtered.map((study) => (
             <motion.div
               key={study.id}
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
+              layout={!prefersReducedMotion}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
             >
               <CaseStudyCard study={study} />
             </motion.div>
