@@ -1,5 +1,5 @@
 import Hero from "@/components/home/Hero";
-import ClientLogos from "@/components/home/ClientLogos";
+
 import MarqueeStrip from "@/components/home/MarqueeStrip";
 import ServicesGrid from "@/components/home/ServicesGrid";
 import MidCTA from "@/components/home/MidCTA";
@@ -12,7 +12,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <ClientLogos />
       <MarqueeStrip />
       <ServicesGrid />
       <MidCTA />

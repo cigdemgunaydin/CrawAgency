@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
+import { COMPANY } from "@/lib/constants";
 
 // ── AYARLAR ──────────────────────────────────────────────────
 const WORDS = [
-  "makes web magic.",
-  "powers creativity.",
-  "launches sites.",
-  "also builds sites.",
+  "rezervasyonları artırır.",
+  "marka bilinirliği yaratır.",
+  "sanal turlar tasarlar.",
+  "sosyal medyayı yönetir.",
+  "drone ile çeker.",
 ];
 const PARTICLE_DENSITY = 2;
 const SPREAD = 80;
@@ -118,213 +121,76 @@ function VaporizeCanvas({ text, trigger, onComplete, fontSize, color }: Vaporize
   );
 }
 
-// ── SÜREÇ ADIMLARI ──────────────────────────────────────────
-const PROCESS_STEPS = [
-  {
-    title: "Keşif Görüşmesi",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Durum Analizi",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <circle cx="11" cy="11" r="8" />
-        <path d="M21 21l-4.35-4.35" />
-        <path d="M11 8v6M8 11h6" />
-      </svg>
-    ),
-  },
-  {
-    title: "Strateji",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
-        <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Tasarım & Geliştirme",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <polyline points="16 18 22 12 16 6" />
-        <polyline points="8 6 2 12 8 18" />
-        <line x1="14" y1="4" x2="10" y2="20" />
-      </svg>
-    ),
-  },
-  {
-    title: "Test & Lansman",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z" />
-        <path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z" />
-        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-      </svg>
-    ),
-  },
-  {
-    title: "Büyüme",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-        <polyline points="16 7 22 7 22 13" />
-      </svg>
-    ),
-  },
-];
+// ── SHOWCASE CARDS ──────────────────────────────────────────
+function ShowcaseCards() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rx = useSpring(useTransform(mouseY, [-200, 200], [5, -5]), { stiffness: 120, damping: 20 });
+  const ry = useSpring(useTransform(mouseX, [-250, 250], [-5, 5]), { stiffness: 120, damping: 20 });
 
-const STEP_CYCLE_DURATION = 3000;
-
-function ProcessAnimation() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % PROCESS_STEPS.length);
-    }, STEP_CYCLE_DURATION);
-    return () => clearInterval(interval);
-  }, []);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set(e.clientX - rect.left - rect.width / 2);
+    mouseY.set(e.clientY - rect.top - rect.height / 2);
+  };
+  const handleMouseLeave = () => { mouseX.set(0); mouseY.set(0); };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
-      {/* Merkez glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(223,168,117,0.12) 0%, transparent 70%)",
-        }}
-      />
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-[500px] mx-auto h-[280px] sm:h-[340px] lg:h-[420px]"
+      style={{ perspective: 900 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Kart 1 — sol üst, dikdörtgen, hafif sola yatık */}
+      <motion.div
+        className="absolute left-[4%] lg:left-0 top-0 w-[48%] lg:w-[220px] aspect-[4/3] rounded-2xl overflow-hidden border border-white/[0.08]"
+        style={{ rotateX: rx, rotateY: ry, rotate: -2, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        drag="x"
+        dragConstraints={{ left: -20, right: 20 }}
+        dragElastic={0.12}
+      >
+        <Image src="/hero/1.jpg" alt="Butik otel dış görünüm" fill className="object-cover" sizes="(min-width:1024px) 220px, 48vw" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      </motion.div>
 
-      {/* Orbital halka */}
-      <div className="relative w-[420px] h-[420px] md:w-[500px] md:h-[500px] lg:w-[560px] lg:h-[560px]">
-        {/* Halka çizgisi */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 560 560">
-          <circle
-            cx="280" cy="280" r="240"
-            fill="none"
-            stroke="rgba(255,255,255,0.04)"
-            strokeWidth="1"
-          />
-          <motion.circle
-            cx="280" cy="280" r="240"
-            fill="none"
-            stroke="rgba(223,168,117,0.15)"
-            strokeWidth="2"
-            strokeDasharray={`${2 * Math.PI * 240}`}
-            strokeDashoffset={2 * Math.PI * 240}
-            strokeLinecap="round"
-            animate={{
-              strokeDashoffset: [
-                2 * Math.PI * 240,
-                2 * Math.PI * 240 * (1 - (activeStep + 1) / PROCESS_STEPS.length),
-              ],
-            }}
-            transition={{ duration: STEP_CYCLE_DURATION / 1000, ease: "easeInOut" }}
-            style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
-          />
-        </svg>
+      {/* Kart 2 — sağ üst, video, hafif sağa yatık */}
+      <motion.div
+        className="absolute right-[4%] lg:right-0 top-[12%] lg:top-[8%] w-[46%] lg:w-[210px] aspect-[3/2] rounded-2xl overflow-hidden border border-white/[0.08]"
+        style={{ rotateX: rx, rotateY: ry, rotate: 1.5, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        drag="x"
+        dragConstraints={{ left: -20, right: 20 }}
+        dragElastic={0.12}
+      >
+        <video className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop playsInline preload="none">
+          <source src="/hero/video.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      </motion.div>
 
-        {/* Adım kartları */}
-        {PROCESS_STEPS.map((step, i) => {
-          const angle = (i / PROCESS_STEPS.length) * 2 * Math.PI - Math.PI / 2;
-          const radius = 240;
-          const x = 280 + Math.cos(angle) * radius;
-          const y = 280 + Math.sin(angle) * radius;
-          const isActive = i === activeStep;
-          const isPast = i < activeStep;
-
-          return (
-            <motion.div
-              key={step.title}
-              className="absolute"
-              style={{
-                left: `${(x / 560) * 100}%`,
-                top: `${(y / 560) * 100}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: 1,
-                scale: isActive ? 1.1 : 1,
-              }}
-              transition={{
-                opacity: { duration: 0.6, delay: i * 0.15 },
-                scale: { duration: 0.4 },
-              }}
-            >
-              {/* Kart */}
-              <motion.div
-                className="flex items-center gap-3 px-4 py-3 rounded-xl whitespace-nowrap"
-                animate={{
-                  backgroundColor: isActive
-                    ? "rgba(223,168,117,0.12)"
-                    : isPast
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(255,255,255,0.03)",
-                  borderColor: isActive
-                    ? "rgba(223,168,117,0.3)"
-                    : "rgba(255,255,255,0.06)",
-                }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  border: "1px solid",
-                  backdropFilter: "blur(12px)",
-                }}
-              >
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      className="absolute inset-0 rounded-xl"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      style={{
-                        background: "radial-gradient(ellipse at center, rgba(223,168,117,0.1) 0%, transparent 70%)",
-                        filter: "blur(8px)",
-                      }}
-                    />
-                  )}
-                </AnimatePresence>
-
-                <motion.div
-                  className="relative flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
-                  animate={{
-                    backgroundColor: isActive
-                      ? "rgba(223,168,117,0.2)"
-                      : "rgba(255,255,255,0.05)",
-                  }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <motion.div
-                    animate={{
-                      color: isActive ? "#dfa875" : isPast ? "rgba(223,168,117,0.6)" : "rgba(255,255,255,0.4)",
-                    }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    {step.icon}
-                  </motion.div>
-                </motion.div>
-
-                <motion.span
-                  className="text-sm font-medium relative"
-                  animate={{
-                    color: isActive ? "#dfa875" : isPast ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.35)",
-                  }}
-                  transition={{ duration: 0.4 }}
-                >
-                  {step.title}
-                </motion.span>
-              </motion.div>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Kart 3 — orta alt, geniş dikdörtgen, hafif sola yatık */}
+      <motion.div
+        className="absolute left-[14%] sm:left-[18%] lg:left-[12%] bottom-0 w-[58%] lg:w-[250px] aspect-[16/9] rounded-2xl overflow-hidden border border-white/[0.08]"
+        style={{ rotateX: rx, rotateY: ry, rotate: -1, transformStyle: "preserve-3d" }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        drag="x"
+        dragConstraints={{ left: -20, right: 20 }}
+        dragElastic={0.12}
+      >
+        <Image src="/hero/2.jpg" alt="Otel iç mekan" fill className="object-cover" sizes="(min-width:1024px) 250px, 58vw" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+      </motion.div>
     </div>
   );
 }
@@ -355,13 +221,29 @@ export default function Hero() {
 
   return (
     <section className="relative w-full min-h-screen bg-black overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-screen flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
+      {/* ── Background glows ── */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div
+          className="absolute -bottom-20 -left-20 w-[450px] h-[450px]"
+          style={{ background: "radial-gradient(circle, rgba(223,168,117,0.09) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute top-[10%] right-[5%] w-[350px] h-[350px]"
+          style={{ background: "radial-gradient(circle, rgba(223,168,117,0.05) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute top-[55%] left-[40%] w-[300px] h-[300px]"
+          style={{ background: "radial-gradient(circle, rgba(223,168,117,0.04) 0%, transparent 65%)" }}
+        />
+      </div>
 
-        {/* Sol: Yazılar & CTA */}
-        <div className="flex flex-col items-start justify-center lg:w-1/2 relative z-[1] pt-24 lg:pt-0">
-          {/* Başlık */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-screen lg:h-screen flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
+
+        {/* Sol: Yazilar & CTA */}
+        <div className="flex flex-col items-center lg:items-start justify-center lg:w-1/2 relative z-[1] pt-24 lg:pt-0">
+          {/* Baslik */}
           <h1
-            className="font-heading italic text-white leading-[0.9] tracking-[-0.02em]"
+            className="font-heading italic text-white leading-[0.9] tracking-[-0.02em] text-center lg:text-left"
             style={{
               fontSize: "clamp(2.5rem, 6vw, 5rem)",
               opacity: mounted ? 1 : 0,
@@ -369,12 +251,12 @@ export default function Hero() {
               transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
             }}
           >
-            İşletmenizi<br />Dijitalde<br />Öne Çıkarıyoruz
+            İzmir&apos;in Butik<br />Otelleri İçin<br />Dijital Strateji
           </h1>
 
-          {/* Servis tagları */}
+          {/* Servis taglari */}
           <p
-            className="font-body text-white/40 text-sm md:text-base tracking-wide mt-4"
+            className="font-body text-white/40 text-sm md:text-base tracking-wide mt-4 text-center lg:text-left"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(16px)",
@@ -384,12 +266,12 @@ export default function Hero() {
             3D Sanal Tur &middot; Sosyal Medya &middot; Web Tasarım &middot; Google & Meta Reklamları
           </p>
 
-          {/* Vaporize dönen kelime */}
+          {/* Vaporize donen kelime */}
           <div
             style={{
               position: "relative", width: "100%", maxWidth: 500,
               height: fontSize * 1.6, display: "flex", alignItems: "center",
-              justifyContent: "flex-start", margin: "16px 0", zIndex: 1,
+              justifyContent: "center", margin: "16px 0", zIndex: 1,
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(20px)",
               transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.15s",
@@ -419,9 +301,9 @@ export default function Hero() {
               onComplete={handleVaporizeComplete} fontSize={fontSize} color={accent} />
           </div>
 
-          {/* Açıklama */}
+          {/* Aciklama */}
           <p
-            className="font-body font-light text-white/60 text-lg md:text-xl max-w-[480px] mt-6"
+            className="font-body font-light text-white/60 text-lg md:text-xl max-w-[480px] mt-6 text-center lg:text-left"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(16px)",
@@ -429,12 +311,12 @@ export default function Hero() {
             }}
           >
             Stratejik dijital pazarlama ve yaratıcı çözümlerle
-            işletmenizi bir sonraki seviyeye taşıyoruz.
+            otelinizi bir sonraki seviyeye taşıyoruz.
           </p>
 
           {/* CTA */}
           <div
-            className="flex flex-col gap-3 mt-10"
+            className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mt-10"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(16px)",
@@ -447,15 +329,78 @@ export default function Hero() {
                 <path d="M1 15L15 1M15 1H5M15 1V11" />
               </svg>
             </Button>
-            <span className="font-body text-white/40 text-sm italic">
-              İzmir&apos;de 12+ işletme ile çalışıyoruz
-            </span>
+            <a
+              href={`https://wa.me/${COMPANY.whatsapp}?text=${encodeURIComponent("Merhaba, otelimiz için bilgi almak istiyoruz.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-white/10 text-white text-base font-medium hover:bg-white/5 transition-colors font-body"
+            >
+              <svg className="w-5 h-5 text-[#25D366]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              WhatsApp ile Yaz
+            </a>
+          </div>
+
+          {/* Sosyal kanit */}
+          <div
+            className="flex items-center justify-center lg:justify-start gap-3 mt-5"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transition: "opacity 1s cubic-bezier(0.16,1,0.3,1) 0.55s",
+            }}
+          >
+            <div className="flex -space-x-2">
+              {["AK", "MB", "SE", "YD"].map((initials) => (
+                <div
+                  key={initials}
+                  className="w-8 h-8 rounded-full bg-white/10 border-2 border-[#0d0c0b] flex items-center justify-center text-[10px] font-medium text-white/70"
+                >
+                  {initials}
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <svg key={i} className="w-3.5 h-3.5 text-terracotta-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-white/70 text-xs mt-0.5 font-body">
+                <span className="text-white font-semibold">12+ otel</span> bizimle büyüdü
+              </p>
+            </div>
+          </div>
+
+          {/* Mobil stats grid */}
+          <div
+            className="grid grid-cols-3 gap-4 mt-10 lg:hidden"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? "translateY(0)" : "translateY(16px)",
+              transition: "all 1s cubic-bezier(0.16,1,0.3,1) 0.6s",
+            }}
+          >
+            {[
+              { value: "12+", label: "Otel" },
+              { value: "340K", label: "Erişim" },
+              { value: "%43", label: "Dönüşüm" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="font-heading italic text-terracotta-400 text-2xl sm:text-3xl tracking-[-0.02em]">
+                  {stat.value}
+                </div>
+                <div className="font-body text-white/50 text-xs mt-1">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Sağ: Süreç animasyonu */}
-        <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative z-[1]">
-          <ProcessAnimation />
+        {/* Sag: Showcase Cards */}
+        <div className="w-full lg:w-1/2 relative z-[1] mt-10 lg:mt-0 pb-8 lg:pb-0">
+          <ShowcaseCards />
         </div>
 
       </div>
